@@ -1,7 +1,7 @@
 package main
 
 import (
-	//db "authServ/internal/database"
+	db "authServ/internal/database"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -24,7 +24,8 @@ func parseURL(w http.ResponseWriter, r *http.Request) {
 		decoder.Decode(&decodedJson)
 		fmt.Println(decodedJson)
 
-		//result, _ := db.AddEncodeData(decodedJson)
+		db.AddEncodeData(decodedJson)
+		db.ConnectDB()
 		//fmt.Println(string(result))
 		break
 	}
