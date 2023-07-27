@@ -14,19 +14,16 @@ func parseURL(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "GET":
+
 		w.Write([]byte("Кнопка нажата"))
 		break
 	case "POST":
 
-		//fmt.Printf("%T", r.Body)
 		decodedJson := make(map[string]string)
 		decoder := json.NewDecoder(r.Body)
 		decoder.Decode(&decodedJson)
 		fmt.Println(decodedJson)
-
 		db.AddEncodeData(decodedJson)
-		db.ConnectDB()
-		//fmt.Println(string(result))
 		break
 	}
 

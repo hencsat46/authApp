@@ -2,31 +2,71 @@ package database
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"os"
+	"log"
 
 	psx "github.com/jackc/pgx/v5"
+	cryp "golang.org/x/crypto/bcrypt"
 )
+
+type userData struct {
+	username string
+	password string
+}
 
 const DB_URL = "postgresql://postgres:forstudy@localhost:5432/AuthDB"
 
 func AddEncodeData(data map[string]string) {
 
-	newJson, _ := json.Marshal(data)
-	err := os.WriteFile("/home/ilya/prog_go/src/authApp/authServ/shitDB/database.json", newJson, 0666)
+	for _, value := range data {
+		if len(value) == 0 {
+			log.Fatal("Username or password is invalid")
+			return
+		}
+	}
+
+	var structData userData = userData{data["username"], data["password"]}
+
+	hashedPassword, _ := cryp.GenerateFromPassword([]byte(structData.password), 5)
+	conn := ConnectDB()
+	defer CloseConnection(conn)
+
+	_, err := conn.Query(context.Background(), fmt.Sprintf("INSERT INTO users(username, passwd) VALUES ('%s', '%s');", structData.username, string(hashedPassword)))
 
 	fmt.Println(err)
+
 }
 
-// func GetData(data map[string]string) bool {
+func ConnectDB() *psx.Conn {
+	config, _ := psx.ParseConfig(DB_URL)
 
-// }
+	conn, err := psx.ConnectConfig(context.Background(), config)
 
-func ConnectDB() {
-	conn, err := psx.Connect(context.Background(), os.Getenv(DB_URL))
+	if err != nil {
+		log.Fatal("Cannot to connect to database", err)
+	}
 
-	defer conn.Close(context.Background())
+	return conn
 
-	fmt.Println(err)
+}
+
+func ShowUsers(connection *psx.Conn) {
+	rows, err := connection.Query(context.Background(), "SELECT * FROM users;")
+
+	if err != nil {
+		log.Fatal("Cannot execute query", err)
+	}
+
+	for rows.Next() {
+		var username string
+		var password string
+
+		rows.Scan(&username, &password)
+
+		fmt.Printf("Username: %v\nPassword: %v\n", username, password)
+	}
+}
+
+func CloseConnection(connection *psx.Conn) {
+	connection.Close(context.Background())
 }
