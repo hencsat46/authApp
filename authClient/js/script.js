@@ -5,7 +5,7 @@ const localhost = "http://localhost:3000/"
 
 
 
-async function getData() {
+async function regData() {
 
     let username = document.getElementsByName("username")[0].value
     let password = document.getElementsByName("password")[0].value
@@ -17,7 +17,7 @@ async function getData() {
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({username: username, password: password}),
+        body: JSON.stringify({username: username, password: password, type: "Sign up"}),
     });
     haha = await response.text()
     console.log(haha)

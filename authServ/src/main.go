@@ -23,7 +23,22 @@ func parseURL(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
 		decoder.Decode(&decodedJson)
 		fmt.Println(decodedJson)
-		db.AddEncodeData(decodedJson)
+
+		switch decodedJson["type"] {
+		case "Sign up":
+			db.AddEncodeData(decodedJson)
+			break
+		case "Sign in":
+			err := db.Authorization(decodedJson)
+			fmt.Println(err)
+			break
+		}
+
+		if decodedJson["type"] == "Sign up" {
+
+		}
+
+		//
 		break
 	}
 

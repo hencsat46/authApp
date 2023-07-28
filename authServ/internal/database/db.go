@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 
@@ -44,6 +45,7 @@ func ConnectDB() *psx.Conn {
 
 	if err != nil {
 		log.Fatal("Cannot to connect to database", err)
+		return nil
 	}
 
 	return conn
@@ -69,4 +71,26 @@ func ShowUsers(connection *psx.Conn) {
 
 func CloseConnection(connection *psx.Conn) {
 	connection.Close(context.Background())
+}
+
+func Authorization(data map[string]string) error {
+
+	conn := ConnectDB()
+	defer CloseConnection(conn)
+	row, err := conn.Query(context.Background(), fmt.Sprintf("SELECT * FROM checkData('%s', '%s')", data["username"], data["password"]))
+
+	if err != nil {
+		log.Fatal("Cannot authorizate", err)
+		return err
+	}
+
+	var status int
+	row.Next()
+	row.Scan(&status)
+
+	if status == 0 {
+		return nil
+	}
+	return errors.New("Invalid login or password")
+
 }

@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./css/main.css">
-    <script src="js/script.js" defer></script>
-    <title>Test</title>
+    <link rel="stylesheet" href="./css/loginStyle.css">
+    <script src="./js/loginScript.js" defer></script>
 </head>
 <body>
     <div class="wrapper">
+        
         <label for="fname">First name:</label>
-        <a href="http://localhost:5000/login/" class="toLogin">Sign in</a><br>
+        <a href="http://localhost:5000/" class="toRegistration">Sign up</a><br>
         <input type="text" id="fname" name="username"><br>
         <label for="lname">Password:</label><br>
         <input type="password" id="lname" name="password"><br>
-        <button class="sign_up_button" onclick="regData()">Sign up</button>
+        <button class="sign_in_button" onclick="loginData()">Sign in</button>
         
     </div>
 </body>
