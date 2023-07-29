@@ -7,7 +7,7 @@ import (
 	"log"
 
 	psx "github.com/jackc/pgx/v5"
-	cryp "golang.org/x/crypto/bcrypt"
+	crypto "golang.org/x/crypto/bcrypt"
 )
 
 type userData struct {
@@ -28,7 +28,7 @@ func AddEncodeData(data map[string]string) {
 
 	var structData userData = userData{data["username"], data["password"]}
 
-	hashedPassword, _ := cryp.GenerateFromPassword([]byte(structData.password), 5)
+	hashedPassword, _ := crypto.GenerateFromPassword([]byte(structData.password), 5)
 	conn := ConnectDB()
 	defer CloseConnection(conn)
 
@@ -77,20 +77,29 @@ func Authorization(data map[string]string) error {
 
 	conn := ConnectDB()
 	defer CloseConnection(conn)
-	row, err := conn.Query(context.Background(), fmt.Sprintf("SELECT * FROM checkData('%s', '%s')", data["username"], data["password"]))
+
+	//
+
+	row, err := conn.Query(context.Background(), fmt.Sprintf("SELECT * FROM returnPassword('%s')", data["username"]))
 
 	if err != nil {
 		log.Fatal("Cannot authorizate", err)
 		return err
 	}
 
-	var status int
+	var hashedPassword string
 	row.Next()
-	row.Scan(&status)
+	row.Scan(&hashedPassword)
 
-	if status == 0 {
+	fmt.Println(hashedPassword)
+
+	status := crypto.CompareHashAndPassword([]byte(hashedPassword), []byte(data["password"]))
+
+	if status == nil {
+		fmt.Println("Authorization complete")
 		return nil
 	}
+
 	return errors.New("Invalid login or password")
 
 }
